@@ -40,26 +40,28 @@ func GetCodeBlocks(f *os.File, block string) []byte {
     for scanner.Scan() {
         line := scanner.Text()
         if strings.HasPrefix(line, block) {
-            lines = append(lines, line...)
+            lines = append(lines, line+"\n"...)
             inBlock = true
         } else if inBlock && strings.HasPrefix(line, "}") {
-            lines = append(lines, line...)
+            lines = append(lines, line+"\n"...)
             inBlock = false
         } else if inBlock {
-            lines = append(lines, line...)
+            lines = append(lines, line+"\n"...)
         }
     }
     return lines
 }
 
 func WriteBlocksToFile(blocks []byte, path string) {
-    // XXX Do we need to handle case where file already exists?
-    newFile, err := os.Create(path)
+    file, err := os.OpenFile(path, os.O_WRONLY|os.O_APPEND, os.ModePerm)
     if err != nil {
-        panic(err)    
+        file, err = os.Create(path)
+        if err != nil {
+            panic(err)    
+        }
     }
-    defer newFile.Close()
-    _, err = newFile.Write(blocks)
+    defer file.Close()
+    _, err = file.Write(blocks)
     if err != nil {
         panic(err)    
     }

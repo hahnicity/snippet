@@ -23,25 +23,25 @@ func ParseArgs(pf *snippet.ParseFile) {
     )
     flag.StringVar(
         &pf.FuncOutFile, 
-        "-func", 
+        "func-file", 
         "funcfile.txt", 
         "The name of the file we wish to write functions to",
     )
     flag.StringVar(
         &pf.TypeOutFile,
-        "-type",
+        "type-file",
         "typefile.txt",
         "The name of the file we wish to write types to",
     )
     flag.BoolVar(
         &parseForFunc,
-        "-find-funcs",
+        "find-funcs",
         true,
         "Parse for functions in our file",
     )
     flag.BoolVar(
         &parseForType,
-        "-find-types",
+        "find-types",
         true,
         "Parse for types in our file",
     )
