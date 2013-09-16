@@ -68,6 +68,7 @@ func (c *Code) handleLastLine(line string) {
     if !c.isChunkImportant() {
         return 
     }
+    fmt.Println(config.DescQuery)
     desc := c.scanForDescription()
     c.insertDescription(desc)
     c.transferCodeToLines()
@@ -81,7 +82,7 @@ func (c *Code) insertDescription(desc string) {
 
 func (c *Code) isChunkImportant() bool {
     scanner := bufio.NewScanner(os.Stdin)
-    fmt.Println(config.ImportantQuery)
+    fmt.Print(config.ImportantQuery)
     for scanner.Scan() {
         if scanner.Text() == config.ImportantNegative {
             return false    
