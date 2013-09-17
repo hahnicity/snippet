@@ -18,10 +18,9 @@ type Golang struct {
 
 func (gl *Golang) HandleNewLine(line string) string {
     gl.Line = line
-    if strings.Contains(line, "{") && !gl.InBlock {
-        // XXX This behavior is ok if our style is fairly idiomatic and brackets are not in strings. Otherwise it is untenable.
-        gl.bracketCount = 1  
-    } else if strings.Contains(line, "{") && gl.InBlock {
+    if strings.Contains(line, "{") {
+        // XXX This behavior is ok if our style is fairly idiomatic and brackets 
+        // are not in strings. Otherwise it is untenable.
         gl.bracketCount += 1
     }
     if strings.Contains(line, "}") {
@@ -32,7 +31,6 @@ func (gl *Golang) HandleNewLine(line string) string {
 
 func (gl *Golang) IsNewBlock(blockIden string) bool {
     //fmt.Println(gl.bracketCount, strings.HasPrefix(gl.Line, blockIden), blockIden, gl.Line)
-    // XXX The behavior here needs to be de-coupled from the function above
     if gl.bracketCount == 1 && strings.HasPrefix(gl.Line, blockIden) {
         gl.InBlock = true
         return true    
