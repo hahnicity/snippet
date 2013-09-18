@@ -19,3 +19,14 @@ There are additional options that can be specified as well
  * --find-types => boolean you can set to false if you do not want to parse for types
  * --func-file => The name of the file we can write all functions to
  * --type-file => The name of the file we can write all types to
+
+ Upon running the manager will go through all the code blocks and pick out all
+ functions/types. Upon finding a function the user will be queried:
+
+        Is this chunk of code important? (y/N):
+        
+If `y` is input the code will be saved to file. If `N` then the opposite. We can
+input a function/type description after being querried if the chunk of code is 
+important to us. The query should look like this;
+
+        Please enter a brief description for this chunk of code:       
