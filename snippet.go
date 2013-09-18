@@ -3,6 +3,7 @@ package snippet
 import (
     "bufio"
     "fmt"
+    "github.com/hahnicity/go-stringit"
     "github.com/hahnicity/snippet/config"
     "os"
     "strings"
@@ -21,20 +22,20 @@ func (pf *ParseFile) OpenFile() *os.File {
     return f
 }
 
-func (pf *ParseFile) ParseForFunc() {
+func (pf *ParseFile) ParseFor(block string) {
     file := pf.OpenFile()
     defer file.Close()
-    c := Code{blockName: "func", file: file}
+    c := Code{blockName: block, file: file}
     c.GetCodeBlocks()
     c.WriteLines(pf.FuncOutFile)
 }
 
+func (pf *ParseFile) ParseForFunc() {
+    pf.ParseFor("func")
+}
+
 func (pf *ParseFile) ParseForType() {
-    file := pf.OpenFile()
-    defer file.Close()
-    c := Code{blockName: "type", file: file}
-    c.GetCodeBlocks()
-    c.WriteLines(pf.TypeOutFile)
+    pf.ParseFor("type")
 }
 
 type Code struct {
@@ -45,18 +46,18 @@ type Code struct {
 }
 
 func (c *Code) GetCodeBlocks() {
-    inBlock := false  // Boolean for determining if we are in our block of code
+    // Eventually create interface to swap Golang with diff. languages
+    gl := &Golang{0, false, "", 10}
     scanner := bufio.NewScanner(c.file)
+    fmt.Println(c.blockName)
     for scanner.Scan() {
-        line := scanner.Text()
-        if strings.HasPrefix(line, c.blockName) {
+        line := gl.HandleNewLine(scanner.Text())
+        if gl.IsNewBlock(c.blockName) {
             c.resetChunk()
             c.chunk = append(c.chunk, line + "\n")
-            inBlock = true
-        } else if inBlock && strings.HasPrefix(line, "}") {
+        } else if gl.IsEndBlock() {
             c.handleLastLine(line)
-            inBlock = false
-        } else if inBlock {
+        } else if gl.InBlock {
             c.chunk = append(c.chunk, line + "\n")
         }
     }
@@ -102,8 +103,13 @@ func (c *Code) resetChunk() {
 func (c *Code) scanForDescription() string {
     scanner := bufio.NewScanner(os.Stdin)
     scanner.Scan()
-    return "// " + strings.ToUpper(c.blockName) + " " + config.DescPrefix + 
-        scanner.Text() + config.DescSuffix
+    return stringit.Format(
+        "// {} {}{}{}", 
+        strings.ToUpper(c.blockName), 
+        config.DescPrefix, 
+        scanner.Text(), 
+        config.DescSuffix,
+    )
 }
 
 func (c *Code) transferCodeToLines() {
