@@ -47,7 +47,7 @@ type Code struct {
 
 func (c *Code) GetCodeBlocks() {
     // Eventually create interface to swap Golang with diff. languages
-    gl := &Golang{0, false, ""}
+    gl := &Golang{0, false, "", 10}
     scanner := bufio.NewScanner(c.file)
     fmt.Println(c.blockName)
     for scanner.Scan() {
