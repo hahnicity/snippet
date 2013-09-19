@@ -3,18 +3,23 @@ package main
 import (
     "flag"
     "github.com/hahnicity/snippet"
+    "github.com/hahnicity/go-stringit"
 )
 
 var (
+    language     string
     parseForType bool
     parseForFunc bool
+    saveAll      bool
 )
 
-func initializeParseFile() *snippet.ParseFile {
-    return new(snippet.ParseFile)
+func getParseFile() *snippet.ParseFile {
+    pf := new(snippet.ParseFile)
+    parseArgs(pf)
+    return pf
 }
 
-func ParseArgs(pf *snippet.ParseFile) {
+func parseArgs(pf *snippet.ParseFile) {
     flag.StringVar(
         &pf.FilePath, 
         "p", 
@@ -45,16 +50,36 @@ func ParseArgs(pf *snippet.ParseFile) {
         true,
         "Parse for types in our file",
     )
+    flag.StringVar(
+        &language,
+        "lang",
+        "golang",
+        "Language to parse",
+    )
+    flag.BoolVar(
+        &saveAll,
+        "save-all",
+        false,
+        "Set to true to save all functions/types to file automatically",
+    )
     flag.Parse()
 }
 
+func getLanguage() snippet.Language {
+    if language == "golang" {
+        return &snippet.Golang{InBlock: false, Line: "", MaxStrings: 10}
+    } else {
+        panic(stringit.Format("The following language {} is not supported", language))    
+    }
+}
+
 func main() {
-    pf := initializeParseFile()
-    ParseArgs(pf)
+    pf := getParseFile()
+    l := getLanguage()
     if parseForFunc {
-        pf.ParseForFunc()   
+        pf.ParseForFunc(l, saveAll)   
     }
     if parseForType {
-        pf.ParseForType()
+        pf.ParseForType(l, saveAll)
     }
 }

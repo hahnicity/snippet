@@ -13,20 +13,28 @@ The manager can be run through the `main.go` console script
 
         main/main.go -p path/to/my/file.go
 
-There are additional options that can be specified as well
-
- * --find-funcs => boolean you can set to false if you do not want to parse for functions
- * --find-types => boolean you can set to false if you do not want to parse for types
- * --func-file => The name of the file we can write all functions to
- * --type-file => The name of the file we can write all types to
-
- Upon running the manager will go through all the code blocks and pick out all
- functions/types. Upon finding a function the user will be queried:
+By default at during runtime the manager will go through all the code blocks and pick out 
+all functions/types. Upon finding a function or type the chunk of code will be printed to 
+screen and the user will be queried:
 
         Is this chunk of code important? (y/N):
-        
+
 If `y` is input the code will be saved to file. If `N` then the opposite. We can
 input a function/type description after being querried if the chunk of code is 
 important to us. The query should look like this;
 
-        Please enter a brief description for this chunk of code:       
+        Please enter a brief description for this chunk of code:
+
+Example input would be
+
+        Print a random string to the screen
+
+### Additional CLI Options
+There are additional options that can be specified as well
+
+ * -find-funcs => boolean you can set to false if you do not want to parse for functions
+ * -find-types => boolean you can set to false if you do not want to parse for types
+ * -func-file => The name of the file we can write all functions to
+ * -type-file => The name of the file we can write all types to
+ * -lang => The language we are parsing.
+ * -save-all => Set to true if you'd like to automatically save all functions/types without being queried

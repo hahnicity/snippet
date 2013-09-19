@@ -22,42 +22,41 @@ func (pf *ParseFile) OpenFile() *os.File {
     return f
 }
 
-func (pf *ParseFile) ParseFor(block string) {
+func (pf *ParseFile) ParseFor(l Language, block string, saveAll bool) {
     file := pf.OpenFile()
     defer file.Close()
-    c := Code{blockName: block, file: file}
-    c.GetCodeBlocks()
+    c := Code{blockName: block, saveAll: saveAll}
+    c.GetCodeBlocks(file, l)
     c.WriteLines(pf.FuncOutFile)
 }
 
-func (pf *ParseFile) ParseForFunc() {
-    pf.ParseFor("func")
+func (pf *ParseFile) ParseForFunc(l Language, saveAll bool) {
+    pf.ParseFor(l, "func", saveAll)
 }
 
-func (pf *ParseFile) ParseForType() {
-    pf.ParseFor("type")
+func (pf *ParseFile) ParseForType(l Language, saveAll bool) {
+    pf.ParseFor(l, "type", saveAll)
 }
 
 type Code struct {
     blockName string
     chunk     []string
-    file      *os.File
     allLines  []byte
+    saveAll   bool
 }
 
-func (c *Code) GetCodeBlocks() {
+func (c *Code) GetCodeBlocks(file *os.File, l Language) {
     // Eventually create interface to swap Golang with diff. languages
-    gl := &Golang{0, false, "", 10}
-    scanner := bufio.NewScanner(c.file)
+    scanner := bufio.NewScanner(file)
     fmt.Println(c.blockName)
     for scanner.Scan() {
-        line := gl.HandleNewLine(scanner.Text())
-        if gl.IsNewBlock(c.blockName) {
+        line := l.HandleNewLine(scanner.Text())
+        if l.IsNewBlock(c.blockName) {
             c.resetChunk()
             c.chunk = append(c.chunk, line + "\n")
-        } else if gl.IsEndBlock() {
+        } else if l.IsEndBlock() {
             c.handleLastLine(line)
-        } else if gl.InBlock {
+        } else if l.IsInBlock() {
             c.chunk = append(c.chunk, line + "\n")
         }
     }
@@ -66,8 +65,11 @@ func (c *Code) GetCodeBlocks() {
 func (c *Code) handleLastLine(line string) {
     c.chunk = append(c.chunk, line + config.EndBlockSuffix)
     fmt.Printf("%s \n", c.chunk)
-    if !c.isChunkImportant() {
-        return 
+    // XXX This feels a little hacky, but works for now until more abstraction is necessary
+    if !c.saveAll {
+        if !c.isChunkImportant() {
+            return 
+        }
     }
     fmt.Println(config.DescQuery)
     desc := c.scanForDescription()

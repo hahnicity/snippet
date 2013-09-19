@@ -1,15 +1,16 @@
 package snippet
 
-//import "fmt"
 import (
     "regexp"
     "strings"
 )
 
 
+// Eventually create the language package once you have more than one language to support
 type Language interface {
     HandleNewLine(line string)   string
     IsNewBlock(blockIden string) bool
+    IsInBlock()                  bool
     IsEndBlock()                 bool
 }
 
@@ -39,6 +40,10 @@ func (gl *Golang) IsNewBlock(blockIden string) bool {
     } else {
         return false    
     }
+}
+
+func (gl *Golang) IsInBlock() bool {
+    return gl.InBlock    
 }
 
 func (gl *Golang) IsEndBlock() bool {
